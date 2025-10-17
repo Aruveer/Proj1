@@ -1,1 +1,14 @@
-# Proj1
+
+##🌟 PROJECT 1
+This repository contains the source code for the student-built API designed to receive evaluation tasks, generate minimal applications using an LLM, deploy them to GitHub Pages, and notify the evaluation server.📝 Project OverviewThis API serves as the backend for the "LLM Code Deployment" project. It automates the full DevOps pipeline:Task Reception: Accepts a POST request with task parameters (brief, secret, checks).Validation: Verifies the STUDENT_SECRET.Code Generation: Uses the Gemini API to generate the required application files (HTML, JS, CSS, README, LICENSE).Deployment: Interacts with the GitHub API to create a public repository, push the generated code, and activate GitHub Pages.Notification: Notifies the official evaluation server upon successful deployment.Revision (Round 2): Handles subsequent requests to update and redeploy the existing application.⚙️ Technology StackComponentTechnologyPurposeBackend FrameworkFastAPICreates the high-performance, asynchronous API endpoint (/handle_task).LLM IntegrationGoogle GenAI SDK (Gemini 2.5 Flash)Generates application code and content based on the task brief.DeploymentPyGithubHandles all interactions with the GitHub API (repo creation, file commits, Pages setup).EnvironmentDocker (Hugging Face)Ensures a consistent, persistent runtime environment for the server.PersistenceIn-memory Python DictionaryStores task metadata (repo URL, nonce) between Round 1 and Round 2 requests.🚀 Setup and Deployment InstructionsThis service is designed to be deployed using Hugging Face Spaces via Docker.1. Local Setup (For Development/Testing)To run locally, ensure Python 3.11+ and all dependencies are installed:Bash# Install dependencies
+pip install fastapi uvicorn pydantic requests PyGithub google-genai
+
+# Set Environment Variables (CRITICAL)
+# Replace placeholders with your actual secrets. Use a Classic PAT for GitHub.
+$env:STUDENT_SECRET = "project"
+$env:GITHUB_TOKEN = "your_personal_access_token"
+$env:GEMINI_API_KEY = "your_gemini_api_key"
+
+# Run the server
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+2. Hugging Face Deployment (Production)The service is hosted on Hugging Face using the provided Dockerfile. The setup relies entirely on Secrets for credentials.Files Uploaded: main.py, github_utils.py, requirements.txt, Dockerfile.Secrets Set: STUDENT_SECRET, GITHUB_TOKEN, and GEMINI_API_KEY are stored securely in the Space settings.Endpoint: The live API is accessible at the public URL: https://[owner]-[space-name].hf.space/handle_task3. API DetailsThe single public endpoint accepts a JSON payload via POST:Endpoint: /handle_taskMethod: POSTRequest Body: Must conform to the TaskRequest Pydantic model (includes secret, task, round, brief, etc.).Success Response: HTTP 200 with status JSON.Failure Response: HTTP 401 (Invalid Secret), HTTP 400 (Bad Payload), or HTTP 500 (Deployment/API Error).
